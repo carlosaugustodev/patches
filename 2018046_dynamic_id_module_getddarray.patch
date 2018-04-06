@@ -1,0 +1,52 @@
+803c803
+< 	
+---
+> 
+808,816c808,816
+< 	public static function getDDArray($module_name) {
+< 		$module = Module::where('name', $module_name)->first();
+< 		if(isset($module)) {
+< 			$model_name = ucfirst(str_singular($module_name));
+< 			if($model_name == "User" || $model_name == "Role" || $model_name == "Permission") {
+< 				$model = "App\\".ucfirst(str_singular($module_name));
+< 			} else {
+< 				$model = "App\\Models\\".ucfirst(str_singular($module_name));
+< 			}
+---
+>     public static function getDDArray($module_name) {
+>         $module = Module::where('name', $module_name)->first();
+>         if(isset($module)) {
+>             $model_name = ucfirst(str_singular($module_name));
+>             if($model_name == "User" || $model_name == "Role" || $model_name == "Permission") {
+>                 $model = "App\\".ucfirst(str_singular($module_name));
+>             } else {
+>                 $model = "App\\Models\\".$module->model;
+>             }
+818,828c818,832
+< 			$result = $model::all();
+< 			$out = array();
+< 			foreach ($result as $row) {
+< 				$view_col = $module->view_col;
+< 				$out[$row->id] = $row->{$view_col};
+< 			}
+< 			return $out;
+< 		} else {
+< 			return array();
+< 		}
+< 	}
+---
+>             $result = $model::all();
+> 
+>             $out = array();
+>             foreach ($result as $row) {
+>                 $view_col = $module->view_col;
+>                 $class_instance = new $model();
+>                 $primary_key = method_exists($class_instance, "getKeyName") ? $class_instance->getKeyName() : "id";
+>                 $out[$row->{$primary_key}] = $row->{$view_col};
+>             }
+>             $out[""] = "";
+>             return $out;
+>         } else {
+>             return array();
+>         }
+>     }
